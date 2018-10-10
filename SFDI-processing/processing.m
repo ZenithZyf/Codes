@@ -10,11 +10,13 @@ function[Mua_result, Musp_result] = processing(folder_name)
     % wavelengths of our modality
     wavelengths = [];
     wavelength_num = 9;
-    % load lookup table
-    load 'F:\Projects\SFDI\MuaI.mat'
-    load 'F:\Projects\SFDI\MuspI.mat'
-    % load lookup table parameters
-    load 'F:\Projects\SFDI\interPara.mat'
+    
+    % load lookup table and parameters
+%     load 'F:\Projects\SFDI\MuaI.mat'
+%     load 'F:\Projects\SFDI\MuspI.mat'
+    load 'F:\Projects\SFDI\fsolveTable.mat'
+%     load 'F:\Projects\SFDI\interPara.mat'
+
     % load name of the processing list from the folder
     list      = dir(folder_name);
     size_list = size(list,1);
@@ -31,36 +33,49 @@ function[Mua_result, Musp_result] = processing(folder_name)
         for j = 1:wavelength_num
             for k = 1:freq_num
                 img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.bmp'],'');
-                phantom(:,:,j,k) = rgb2gray(imread(char(fullfile(folder_Phantom,img_name))));
-                tissue(:,:,j,k)  = rgb2gray(imread(char(fullfile(folder_tissue, img_name))));
+                pha = double(rgb2gray(imread(char(fullfile(folder_Phantom,img_name)))));
+                tis = double(rgb2gray(imread(char(fullfile(folder_tissue, img_name)))));
+%                 img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.tiff'],'');
+%                 phantom(:,:,j,k) = imread(char(fullfile(folder_Phantom,img_name)));
+%                 tissue(:,:,j,k)  = imread(char(fullfile(folder_tissue, img_name)));
+%                 pha = double(imread(char(fullfile(folder_Phantom,img_name))));
+%                 tis = double(imread(char(fullfile(folder_tissue, img_name))));
+                phantom(:,:,j,k) = pha./mean2(pha);
+                tissue(:,:,j,k)  = tis./mean2(tis);
             end
         end
-        phantom = double(phantom);
-        tissue  = double(tissue);
+%         phantom = double(phantom);
+%         tissue  = double(tissue);
 
         % process phantom images
         mdcref   = sum(phantom,4)./freq_num;
         % macref_o only can be applied to 3 modulated frequencies.
         macref_o = (sqrt(2)./3).*(sqrt(sum((phantom-phantom(:,:,:,[2,3,1])).^2,4)));
         % normalization method to avoid line (modulation) artifact
-        for j = 1:wavelength_num
-            mod_ref(:,:,j) = ones(size(mdcref(:,:,1))).*mean2(mdcref(:,:,j))./mean2(macref_o(:,:,j));
-        end
-        macref   = macref_o.*mod_ref;
+%         for j = 1:wavelength_num
+%             mod_ref(:,:,j) = ones(size(mdcref(:,:,1))).*mean2(mdcref(:,:,j))./mean2(macref_o(:,:,j));
+%         end
+%         macref   = macref_o.*mod_ref;
+        macref    = macref_o;
 
         % process tissue images
         mdctis   = sum(tissue,4)./freq_num;
         mactis_o = (sqrt(2)./3).*(sqrt(sum((tissue-tissue(:,:,:,[2,3,1])).^2,4)));
-        for j = 1:wavelength_num
-            mod_tis(:,:,j) = ones(size(mdctis(:,:,1))).*mean2(mdctis(:,:,j))./mean2(mactis_o(:,:,j));
-        end
-        mactis   = mactis_o.*mod_tis;
+%         for j = 1:wavelength_num
+%             mod_tis(:,:,j) = ones(size(mdctis(:,:,1))).*mean2(mdctis(:,:,j))./mean2(mactis_o(:,:,j));
+%         end
+%         mactis   = mactis_o.*mod_tis;
+        mactis   = mactis_o;
 
         % calculate corresponding Rd_DC and Rd_AC
         % 0.7530 is the theoretical phantom Rd_DC from diffuse_equa.m
         Rd_DC = (mdctis./mdcref).*0.7530;
+%         Rd_DC = (mdctis./mdcref);
+%         Rd_DC = Rd_DC./max(max(Rd_DC)).*0.7530;
         % 0.2255 is the theoretical phantom Rd_AC from diffuse_equa.m
         Rd_AC = (mactis./macref).*0.2255;
+%         Rd_AC = (mactis./macref);
+%         Rd_AC = Rd_AC./max(max(Rd_AC)).*0.2255;
 
         row_image     = size(Rd_DC, 1);
         column_image  = size(Rd_DC, 2);
@@ -69,17 +84,38 @@ function[Mua_result, Musp_result] = processing(folder_name)
 
         beyond_counter = 0;
 
+%         for wl = 1:wavelength_num
+%             for r = 1:row_image
+%                 for c = 1:column_image
+%                     Rdc = Rd_DC(r,c,wl);
+%                     Rac = Rd_AC(r,c,wl);
+%                     col = fix((Rdc-DCMin)./inter_step+1);
+%                     row = fix((Rac-ACMin)./inter_step+1);
+% 
+%                     if(row>0 && row<=size(MuaI,1) && col>0 && col<=size(MuaI,2))
+%                         Mua  = MuaI(row,col);
+%                         Musp = MuspI(row,col);
+% 
+%                         Mua_result(r,c,wl)  = Mua;
+%                         Musp_result(r,c,wl) = Musp;
+%                     else
+%                         beyond_counter = beyond_counter+1;
+%                     end
+%                 end
+%             end
+%         end
+
         for wl = 1:wavelength_num
-            for r = 1:row_image
-                for c = 1:column_image
+            for c = 1:column_image
+                for r = 1:row_image
                     Rdc = Rd_DC(r,c,wl);
                     Rac = Rd_AC(r,c,wl);
-                    col = fix((Rdc-DCMin)./inter_step+1);
-                    row = fix((Rac-ACMin)./inter_step+1);
+                    col = fix((Rac-0.05)./0.01+1);
+                    row = fix((Rdc-Rac-0.01)./0.01+1);
 
-                    if(row>0 && row<=size(MuaI,1) && col>0 && col<=size(MuaI,2))
-                        Mua  = MuaI(row,col);
-                        Musp = MuspI(row,col);
+                    if(row>0 && row<=size(MuaF,1) && col>0 && col<=size(MuaF,2))
+                        Mua  = MuaF(row,col);
+                        Musp = MuspF(row,col);
 
                         Mua_result(r,c,wl)  = Mua;
                         Musp_result(r,c,wl) = Musp;
@@ -89,6 +125,7 @@ function[Mua_result, Musp_result] = processing(folder_name)
                 end
             end
         end
+        
         Mua_savename  = fullfile(folder_name,category_case(i),'Mua.mat');
         Musp_savename = fullfile(folder_name,category_case(i),'Musp.mat');
         save(Mua_savename,'Mua_result');

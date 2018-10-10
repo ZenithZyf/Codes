@@ -24,17 +24,17 @@ function[Rd_DC,Rd_AC] = diffuse_equa(mua,musp)
 	% The transport coefficient.
 	mutr  = mua+musp;
 	% The effective attenuation coefficient.
-	mueff = sqrt(3*mua*musp);
+	mueff = sqrt(3.*mua.*mutr);
 
 	% The scalar attenuation coefficient.
 	mueffp_dc = mueff;
-	mueffp_ac = sqrt(mueff^2+(2*pi*fx_ac)^2);
+	mueffp_ac = sqrt(mueff.^2+(2.*pi.*fx_ac).^2);
 	% The reduced albedo.
-	ap    = musp/mutr;
+	ap    = musp./mutr;
 
 	% The dc and ac diffuse reflectance. 
-	Rd_DC = 3*A*ap/((mueffp_dc/mutr+1)*(mueffp_dc/mutr+3*A));
-	Rd_AC = 3*A*ap/((mueffp_ac/mutr+1)*(mueffp_ac/mutr+3*A));
+	Rd_DC = 3.*A.*ap./((mueffp_dc./mutr+1).*(mueffp_dc./mutr+3.*A));
+	Rd_AC = 3.*A.*ap./((mueffp_ac./mutr+1).*(mueffp_ac./mutr+3.*A));
 end
 
 
