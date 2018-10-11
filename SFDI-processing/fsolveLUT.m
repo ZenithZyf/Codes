@@ -1,4 +1,5 @@
 function[MuaF,MuspF] = fsolveLUT(step)
+    tic;
 
     account = 1;
     % Practically, Rac is range from 0.05 to 0.65
@@ -16,6 +17,9 @@ function[MuaF,MuspF] = fsolveLUT(step)
         end
         account = account+1;
     end
+    MuaF  = abs(MuaF);
+    MuspF = abs(MuspF);
     save('fsolveTable.mat','MuaF','MuspF','step');
 
+    toc;
 end
