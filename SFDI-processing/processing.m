@@ -9,7 +9,7 @@ function[Mua_result, Musp_result] = processing(folder_name)
     freq_num = size(mod_freq,2);
     % wavelengths of our modality
     wavelengths = [];
-    wavelength_num = 9;
+    wavelength_num = 3;
     
     % load lookup table and parameters
 %     load 'F:\Projects\SFDI\MuaI.mat'
@@ -32,14 +32,14 @@ function[Mua_result, Musp_result] = processing(folder_name)
         folder_tissue = fullfile(folder_name,category_case(i));
         for j = 1:wavelength_num
             for k = 1:freq_num
-                img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.bmp'],'');
-                pha = double(rgb2gray(imread(char(fullfile(folder_Phantom,img_name)))));
-                tis = double(rgb2gray(imread(char(fullfile(folder_tissue, img_name)))));
-%                 img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.tiff'],'');
+%                 img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.bmp'],'');
+%                 pha = double(rgb2gray(imread(char(fullfile(folder_Phantom,img_name)))));
+%                 tis = double(rgb2gray(imread(char(fullfile(folder_tissue, img_name)))));
+                img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.tiff'],'');
 %                 phantom(:,:,j,k) = imread(char(fullfile(folder_Phantom,img_name)));
 %                 tissue(:,:,j,k)  = imread(char(fullfile(folder_tissue, img_name)));
-%                 pha = double(imread(char(fullfile(folder_Phantom,img_name))));
-%                 tis = double(imread(char(fullfile(folder_tissue, img_name))));
+                pha = double(imread(char(fullfile(folder_Phantom,img_name))));
+                tis = double(imread(char(fullfile(folder_tissue, img_name))));
                 phantom(:,:,j,k) = pha./mean2(pha);
                 tissue(:,:,j,k)  = tis./mean2(tis);
             end
@@ -110,8 +110,8 @@ function[Mua_result, Musp_result] = processing(folder_name)
                 for r = 1:row_image
                     Rdc = Rd_DC(r,c,wl);
                     Rac = Rd_AC(r,c,wl);
-                    col = fix((Rac-0.05)./0.01+1);
-                    row = fix((Rdc-Rac-0.01)./0.01+1);
+                    col = fix((Rac-0.05)./step+1);
+                    row = fix((Rdc-Rac-step)./step+1);
 
                     if(row>0 && row<=size(MuaF,1) && col>0 && col<=size(MuaF,2))
                         Mua  = MuaF(row,col);

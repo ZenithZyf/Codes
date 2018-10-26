@@ -33,7 +33,8 @@ for j = 1:wavelength_num
 %         phantom(:,:,j,k) = rgb2gray(imread(char(fullfile(folder_Phantom,img_name))));
 %         tissue(:,:,j,k)  = rgb2gray(imread(char(fullfile(folder_tissue, img_name))));
 % 
-        img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.tiff'],'');
+%         img_name  = join(['__',mod_freq(k),' degrees_LED#',j,'_1.tiff'],'');
+         img_name = join([mod_freq(k),'.tiff'],'');
 %         phantom(:,:,j,k) = imread(char(fullfile(folder_Phantom,img_name)));
 %         tissue(:,:,j,k)  = imread(char(fullfile(folder_tissue, img_name)));
 
