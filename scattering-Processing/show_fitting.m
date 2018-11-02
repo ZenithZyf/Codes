@@ -17,6 +17,7 @@ z = ((1:size(fitrange,1)).*depth_step)';
 img_p = 10.^(((double(fitrange)./10)+60)./20); 
 logiz = log(img_p);
 coef = fit(z(fitpoint),logiz(fitpoint),'poly1');
+-coef.p1
 
 %%
 figure, plot(logiz);

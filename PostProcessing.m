@@ -1,10 +1,10 @@
 % This is a collection of postprocessing codes I used for OCT
 %%
-slicenum = 1255;
-dataname = ['P10mmby20mm3DOCTSlice',num2str(slicenum),'.bmp'];
+slicenum = 900;
+dataname = ['P3DOCTSlice',num2str(slicenum),'.bmp'];
 img = imread(dataname);
 figure,imshow(img);
-img(1:125,:) = 0;
+% img(1:125,:) = 0;
 
 %% For imgm Matrix
 n = 1;
