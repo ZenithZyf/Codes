@@ -14,7 +14,7 @@ c3 = log(c2./c1);
 d3 = log(d2./d1);
 
 %% Image Post-Processing for Scattering Map
-usp_p = usp(:,1:1000);
+usp_p = usp;
 usp_p(usp_p<=0) = -1;
 usp_p(usp_p>20) = 20;
 figure,imagesc(usp_p);colormap(jet);colorbar;
@@ -94,12 +94,7 @@ hline.Color='r';
 %%
 g = [ones(size(measure13)); 2*ones(size(wave13)); 3*ones(size(ave13)); 4*ones(size(noth13))];
 x = [measure13;wave13;ave13;noth13];
-g = [g; 5*ones(size(measure11)); 6*ones(size(wave11)); 7*ones(size(ave11)); 8*ones(size(noth11))];
-x = [x; measure11;wave11;ave11;noth11];
-g = [g; 9*ones(size(measure31)); 10*ones(size(wave31)); 11*ones(size(ave31)); 12*ones(size(noth31))];
-x = [x; measure31;wave31;ave31;noth31];
-g = [g; 13*ones(size(measureT)); 14*ones(size(waveT)); 15*ones(size(aveT)); 16*ones(size(nothT))];
-x = [x; measureT;waveT;aveT;nothT];
+
 % figure, boxplot(x,g,'labels',{'measurement','wavelet','average','rawdata'});
 % figure, boxplot(x,g,'labels',{'measurement','wavelet','average','rawdata','measurement','wavelet','average','rawdata','measurement','wavelet','average','rawdata','measurement','wavelet','average','rawdata'});
 figure, boxplot(x,g,'labels',{'1','1','1','1','2','2','2','2','3','3','3','3','4','4','4','4'});

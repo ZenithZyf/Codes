@@ -19,15 +19,15 @@ mea_m = nanmean(measure);
 mea_s = nanstd(measure);
 
 %%
-y = [ave_m',wlt_m',mea_m',not_m'];
-z = [ave_s',wlt_s',mea_s',not_s'];
+y = [ave_m,wlt_m,mea_m',not_m];
+z = [ave_s,wlt_s,mea_s',not_s];
 x = [1.5251,3.462,5.8091,11.0443];
-x0 = [1.53,3.46,5.81,11.04];
+x0 = [0.62,3.22,6.41,8.03];
 
 figure,
 % Creating axes and the bar graph
 ax = axes;
-h = bar(x-0.352+0.1761,y,'BarWidth',1,'LineWidth',2);
+h = bar(x0-0.352+0.1761,y,'BarWidth',1,'LineWidth',2);
 h(1).FaceColor = [0.75,0.75,0.75];
 h(2).FaceColor = [117/255,187/255,253/255];
 h(3).FaceColor = 'r';
