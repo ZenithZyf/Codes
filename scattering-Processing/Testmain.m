@@ -30,7 +30,7 @@ for slicenum = 1:size(imgm,3)
     img = double(imgo)./depthpara(:,1);
     
     % extract the tissue areas 
-    for i = 1:size(imgm,1)
+    for i = 1:size(imgm,2)
         img(1:surface(slicenum,i),i)=0;
         img(surface(slicenum,i)+thickness:1000,i)=0;
     end
