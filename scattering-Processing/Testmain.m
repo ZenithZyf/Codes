@@ -15,9 +15,9 @@ load depthpara;
 thickness = 150;
 %%%
 % usp - scattering coefficient
-usp = zeros(size(imgm,3),1000); 
+usp = zeros(size(imgm,3),size(imgm,2)); 
 % err - 95% fitting error
-err = zeros(size(imgm,3),1000);
+err = zeros(size(imgm,3),size(imgm,2));
 
 % =====================================================================================
 %                           Scattering Coefficeint Mapping
@@ -27,10 +27,10 @@ for slicenum = 1:size(imgm,3)
     % read each B-scan for processing
     imgo = imgm(:,:,slicenum);
     % compensate the signal roll-off over depth
-    img = double(imgo)./depthpara;
+    img = double(imgo)./depthpara(:,1);
     
     % extract the tissue areas 
-    for i = 1:1000
+    for i = 1:size(imgm,1)
         img(1:surface(slicenum,i),i)=0;
         img(surface(slicenum,i)+thickness:1000,i)=0;
     end

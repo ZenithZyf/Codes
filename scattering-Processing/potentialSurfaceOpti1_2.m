@@ -18,23 +18,25 @@ imgm(1:125,:,:) = 10; % this number needs to be adjusted according to samples
 %%%
 % a represents the number of B-scans waiting for processing
 a = size(imgm,3);
+row = size(imgm,1);
+col = size(imgm,2);
 
 % record the path with the lowest cost to each pixel
 % 11 stands for 11 potential start points of each B-scan
 % theorietically, we can use all 1000 pixels as startpoint
 % 11 is just for efficiency
-traces = zeros(1000,1000,11); 
+traces = zeros(row,col,11); 
 % record the lowest cost it takes to go to each pixel
-costs = zeros(1000,1000,11);
+costs = zeros(row,col,11);
 % temporary cost variable for processing convenience
-costTemp = zeros(1000,1);
+costTemp = zeros(row,1);
 % temporarily save the minimum cost of 11 startpoints of all B-scans
 minCostLocal = zeros(11,a);
 % delineated surface using 11 startpoints of all B-scans
-tempsurface = zeros(1000,11,a);
+tempsurface = zeros(col,11,a);
 
 % final surface (with globally minimum costs)
-surface = zeros(a,1000);
+surface = zeros(a,col);
 % final startpoint for each surface
 startpoint = zeros(a,1);
 
@@ -52,7 +54,7 @@ for number = 1:a
     % decide the intensity comparison length icl
     icl = 10; 
     % flip the image to compensate the boundary problem
-    img = [flipud(imgo(1:icl,:));imgo;flipud(imgo((1000-icl+1):999,:))];
+    img = [flipud(imgo(1:icl,:));imgo;flipud(imgo((row-icl+1):row-1,:))];
 
     % customized parameter
     alp = 0.01;
@@ -78,16 +80,16 @@ for number = 1:a
         % Initialization of costs and traces for the first two columns
         costs(:,1,startPoint-tempstart+6) = 0; 
         traces(:,1:2,startPoint-tempstart+6) = startPoint;
-        for ii = (1:1000)+icl
+        for ii = (1:row)+icl
             intenDiff = alp*(sum(img(ii-icl:ii-1,2))-sum(img(ii:ii+icl-1,2)));
             costs(ii-icl,2,startPoint-tempstart+6) = abs(ii-startPoint-icl)+intenDiff;
         end
 
         % iteration for optimization
-        for i = 3:1000
-            for ii = (1:1000)+icl
+        for i = 3:col
+            for ii = (1:row)+icl
                 intenDiff = alp*(sum(img(ii-icl:ii-1,i))-sum(img(ii:ii+icl-1,i)));
-                costTemp = abs((1:1000)-ii+icl)+intenDiff+costs(:,i-1,startPoint-tempstart+6)';
+                costTemp = abs((1:row)-ii+icl)+intenDiff+costs(:,i-1,startPoint-tempstart+6)';
                 index = find(costTemp==min(costTemp),1);
                 traces(ii-icl,i,startPoint-tempstart+6) = index;
                 costs(ii-icl,i,startPoint-tempstart+6) = costTemp(index);
@@ -95,11 +97,11 @@ for number = 1:a
         end
 
         % find the trace with the minimum costs of this startPoint
-        endPoint = find(costs(:,1000,startPoint-tempstart+6)==min(costs(:,1000,startPoint-tempstart+6)),1);
-        minCostLocal(startPoint-tempstart+6,slicenum) = min(costs(:,1000,startPoint-tempstart+6));
-        tempsurface(1000,startPoint-tempstart+6,slicenum) = endPoint;
-        for ss = 1:999
-            tempsurface(1000-ss,startPoint-tempstart+6,slicenum) = traces(tempsurface(1000-ss+1,startPoint-tempstart+6,slicenum),1000-ss+1,startPoint-tempstart+6);
+        endPoint = find(costs(:,col,startPoint-tempstart+6)==min(costs(:,col,startPoint-tempstart+6)),1);
+        minCostLocal(startPoint-tempstart+6,slicenum) = min(costs(:,col,startPoint-tempstart+6));
+        tempsurface(col,startPoint-tempstart+6,slicenum) = endPoint;
+        for ss = 1:col-1
+            tempsurface(col-ss,startPoint-tempstart+6,slicenum) = traces(tempsurface(col-ss+1,startPoint-tempstart+6,slicenum),col-ss+1,startPoint-tempstart+6);
         end
     end
     % minCost(slicenum) = min(minCostLocal(:,slicenum));

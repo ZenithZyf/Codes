@@ -18,12 +18,12 @@ function [us,error] = MWSC(img,img_f,surfrow,halfwindowsize)
 
 % Load old-image parameters; These parameters are not used in the final processing;
 % They are maintained for future potential update.
-pixel = size(img_f,1); % pixel numbers per A-line
+row = size(img_f,1); % row numbers per A-line
 depth = 1.8; % mm
-depth_step = double(depth/pixel); % mm.
+depth_step = double(depth/row); % mm.
 zcf = depth_step*500; zr = 0.66; % mm. zcf: depth of focal gate; zr: rayleigh length.
 z = ((1:size(img_f,1))*depth_step)'; % mm. Image depth vector.
-epi_pixel_NO = floor(0.04/depth_step); % pixel. The depth of epithelium.
+epi_pixel_NO = floor(0.04/depth_step); % row. The depth of epithelium.
 noiseline = 600; % row number. beneath which are all noises. It is different for different slices.
 
 % Image pre-processing (flip at the edge).
@@ -31,10 +31,11 @@ noiseline = 600; % row number. beneath which are all noises. It is different for
 % img_f = [fliplr(img_f(:,1:halfwindowsize)) img_f fliplr(img_f(:,1000-halfwindowsize+1:1000))];
 % surfrow = [fliplr(surfrow(:,1:halfwindowsize)) surfrow fliplr(surfrow(:,1000-halfwindowsize+1:1000))];
 
+col = size(img,2);
 % us - scattering coefficient
-us = zeros(1,1000); 
+us = zeros(1,col); 
 % error - 95% fitting error
-error = zeros(1,1000);
+error = zeros(1,col);
 
 % =====================================================================================
 %   Moving window processing for scattering coefficient extraction of all the A-lines
@@ -46,7 +47,7 @@ for aline = (1+halfwindowsize):(size(img_f,2)-halfwindowsize) % moving window
     % Hole deletion.
     % setting threshold intensity for pixels in a hole
     threshold = 15;
-    % loading the surface pixel of each aline
+    % loading the surface row of each aline
     temp = surfrow(aline);
     % used for saving the index of suitable pixels
     fitpoint = [];
@@ -58,14 +59,14 @@ for aline = (1+halfwindowsize):(size(img_f,2)-halfwindowsize) % moving window
     % record pixels whose intensity larger than threshold only
     while 1  
         if img_f(temp,aline)<threshold
-            temp = find(img_f(temp:1000,aline)>threshold,1,'first')+temp;
+            temp = find(img_f(temp:row,aline)>threshold,1,'first')+temp;
             if isempty(temp)==1
                 break;
             end
         else
-            tmp = find(img_f(temp:1000,aline)<threshold,1,'first')+temp;
+            tmp = find(img_f(temp:row,aline)<threshold,1,'first')+temp;
             fitpoint = [fitpoint temp:tmp-1];
-            temp = find(img_f(tmp:1000,aline)>threshold,1,'first')+tmp;
+            temp = find(img_f(tmp:row,aline)>threshold,1,'first')+tmp;
             if isempty(temp)==1
                 break;
             end
