@@ -10,7 +10,8 @@ clear all;close all;clc
 include=0; %**** 1 will include all patient  0 will exclude low grade tumor data
 Training_portion=2/3;
 %classifier selector
-selector=2; %GLM        =1
+selector=2; 
+%GLM        =1
 %SVM        =2
 %Naive Bayes=3
 %KNN        =4
