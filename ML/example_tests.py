@@ -1,120 +1,110 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+@author: Nigel
+"""
 import numpy as np
 import random
-import math
-from logistic import logistic
-from ridge import ridge
-from checkgradLogistic import checkgradLogistic
-from checkgradHingeAndRidge import checkgradHingeAndRidge
+import sys
+from genTrainFeatures import genTrainFeatures
+from naivebayesPY import naivebayesPY
+from naivebayesPXY import naivebayesPXY
 
-def example_tests():
-# % def example_tests():
-# %
-# % Tests for the SRM project. Some few example tests are implemented. 
-# % Some are only dewscribed in the comments. You will have to implement 
-# % those yourself. 
-# %
-# % Output: 
-# % r:    number of tests that broke
-# % ok:   number of passed tests
-# % s:    statement describing the failed test (s={} if all succeed)
-
-
-        random.seed(31415926535) 
-        # % initial outputs
-        r=0
-        ok=0
-        s=[]  #used to be matlab cell array
-        
-#         % data set
-        N=50
-        D=5
-
-        x=np.concatenate((np.random.randn(D,N),np.random.randn(D,N)+2),axis=1)
-        y=np.concatenate((np.ones((1,N)),-np.ones((1,N))),axis=1)
-
-        print ('Starting Test 1\n')
-        #Test 1: testing gradient of logistic
-        d=checkgradLogistic(logistic,np.random.rand(D,1),1e-05,x,y)
-        failtest = d>1e-10
-
-        if failtest:
-            r=r+1              
-            s.append('Test 1: Logistic function does not pass checkgrad.')
-        else:
-            ok=ok+1;
+def example_tests():  
+# =============================================================================
+# function [r, ok, s]=example_tests()
+# 
+# Tests the functions from homework assignment 0
+# Please make sure that the error statements are instructive.
+# 
+# Output:
+# r= The number of tests that failed
+# ok= The number of tests that passed
+# s= statement describing the failed test (s={} if all succeed)
+# =============================================================================
     
-        print('Completed Test 1\n')
-        
-        
-        
-#     %% Test 2: logistic sanity check #1
-#     % we will test logistic with an all zeros weight vector, a random datapoint 
-#     % and a random label in {-1,1}. The expected outcome is (very close to) log(2). 
-#         
-        
-        
-        print('Starting Test 3\n')
-        #Test 3: logistic sanity check #2
-        w=np.random.rand(5,1)
-        logistic_loss = logistic(w,x[:,1].reshape((5,1)),np.ones((1,1)))[0]
-        failtest = w.T.dot(x[:,1])+math.log(math.exp(logistic_loss)-1) > 2.2204e-16
-        if failtest:
-            r=r+1
-            s.append('Test 3: Logistic function does not pass sanity check #2.')
-        else:
-            ok=ok+1
-        print('Completed Test 3\n')
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        print('Starting Test 4\n')
-        #Test 4: testing gradient of ridge
-        d = checkgradHingeAndRidge(ridge,np.random.rand(D, 1), 1e-05, x,y,10)
-        failtest = d > 1e-10
+    # Put in any seed below
+    random.seed(31415926535)
+    # initial outputs
+    r=0
+    ok=0
+    s=[] #used to be matlab cell array
 
-        if failtest:
-            r = r+1
-            s.append('Test 4: Ridge function does not pass checkgrad.')
-        else:
-            ok=ok+1
+    # load in name data
+    xTr,yTr = genTrainFeatures()
+    print('Starting Test 1')
+    try:
+        # Test 1: check if probabilities sum to 1
+        pos,neg = naivebayesPY(xTr,yTr)
+        failtest = (np.linalg.norm(pos+neg-1) > 1e-8)
+        addon=''
+    except:
+        failtest = True
+        addon = traceback.format_exc()
 
-        print('Completed Test 4\n')
+    if failtest:
+        r = r+1
+        s += 'Failed Test 1 naivebayesPY: Probabilities of P(Y) do not sum to 1.\n' + addon + '\n'
+    else:
+        ok=ok+1
+        
+    print('Completed Test 1')
 
-        # print(s)
+    y=np.matrix([-1, 1])
+    x=np.matrix([[0, 1], [1, 0]])
 
-#     %% Test 5: testing gradient of hinge
-#     % we will test hinge using checkgrad on randomly generated x and y data 
-#     % initializing w with 1e-05 and lambda with 1e-05. The gradient is supposed
-#     % to be smaller than 5e-07.
-# 
-# 
-# 
-#     %% Test 6: checking gradient descent
-#     % we will check grdescent using the squared loss, randomly generated input
-#     % weights and stepsize=1e-05, maxiter=1000,and tolerance=1e-09. The
-#     % norm of the gradient at the optimal solution should be zero (< 1e-05).
-# 
-# 
-#     %% Tests 7-12: solutions of hinge, ridge, and logistic
-#     % we will compare the solutions (loss value and gradient) of hinge, 
-#     % ridge, and logistic to our implementation using x and y. 
-#     % Note that you cannot implement those tests. 
+    failtest = False
+    print('Starting Test 2')
+    try:
+        # Test 2: Test the Naive Bayes function on a simple matrix
+        pos,neg = naivebayesPY(x,y)
+        pos0 = 0.5
+        neg0 = 0.5
+        if (pos != pos0) or (neg != neg0):
+            failtest = True
+            addon = ''
+    except:
+        failtest = True
+        addon = traceback.format_exc()
+
+    if failtest:
+        r = r + 1
+        s += 'Failed Test 2 naivebayesPXY: The calculation of P(Y) seems incorrect.\n' + addon + '\n'
+    else:
+        ok=ok+1
+    print('Completed Test 2')
+
+
+    failtest = False
+    print('Starting Test 3')
+    pospossi0 = np.matrix([[0.66667], [0.33333]])
+    negpossi0 = np.matrix([[0.33333], [0.66667]])
+    try:
+        # Test 3 calculate conditional probabilities
+        pospossi,negpossi = naivebayesPXY(x,y)
+        addon = ''
+        if (np.linalg.norm(pospossi - pospossi0) > 1e-3) or (np.linalg.norm(negpossi - negpossi0) > 1e-3):
+            failtest = True
+    except:
+        failtest = True
+        addon = traceback.format_exc()
+        
+    if failtest:
+        r = r+1
+        s += 'Failed Test 3: The calculation of P(X|Y) seems incorrect.\n' + addon + '\n'
+    else:
+        ok=ok+1
+    print('Finished Test 3')
     
+#    Tests 4~8 are testing about the naivebayesPXY function.
+#    Some are sanity tests that the function is returning reasonable answers.
+#    Some are making sure they are correct on small cases
+    
+#    Tests 9 is on naivebayes
+    
+#    Tests 10 is on naivebayesCL
+    
+    
+    percentage=ok/(r+ok)*100;
+    return r,ok,s
 
-
-
-def squaredloss(w,x,y):
-    [d,n]=np.shape(x)
-    diff=(w.T.dot(x)-y)
-    gradient=2*x.dot(diff.T)/n
-    loss = np.mean(diff**2)
-    return loss,gradient
-
-
-example_tests();
