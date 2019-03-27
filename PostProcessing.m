@@ -8,7 +8,7 @@ figure,imshow(img);
 
 %% For imgm Matrix
 n = 1;
-for slicenum = 500:1499
+for slicenum = 600:1999
     dataname = ['P10mmby20mm3DOCTSlice',num2str(slicenum),'.bmp'];
     imgo = imread(dataname);
     imgm(:,:,n) = imgo;
@@ -30,6 +30,9 @@ figure, imshow(imgm(:,:,901));
 figure, imshow(imgm(:,:,1001));
 figure, imshow(imgm(:,:,1101));
 figure, imshow(imgm(:,:,1201));
+figure, imshow(imgm(:,:,1301));
+figure, imshow(imgm(:,:,1401));
+figure, imshow(imgm(:,:,1501));
 
 %% Image Post-Processing for Scattering Map
 usp_p = usp;

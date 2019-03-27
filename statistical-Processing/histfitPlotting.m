@@ -8,7 +8,7 @@ us_cal(us_cal<0.5|us_cal>19.5) = [];
 figure,histfit(us_cal);
 title('Benign');
 xlabel('Scattering coefficient (mm^{-1})'); ylabel('Probability density');
-xlim([0,20]);
+xlim([0.5,19.5]);
 set(gca,'fontsize',20);
 yt = get(gca, 'YTick');
 digits(2);
