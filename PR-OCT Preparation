@@ -1,0 +1,35 @@
+PR-OCT Preparation:
+
+Install LabelImg:
+
+# Install pip3
+sudo apt update
+sudo apt install python3-pip
+pip3 --version
+
+# Python3 + Qt5
+sudo apt-get install pyqt5-dev-tools
+sudo pip3 install -r requirements/requirements-linux-python3.txt
+make qt5py3
+python3 labelImg.py
+python3 labelImg.py [IMAGE_PATH] [PRE-DEFINED CLASS FILE]
+
+# RetinaNet
+apt-get install tk-dev python-tk
+
+pip install cffi
+pip install pandas
+pip install pycocotools
+pip install cython
+pip install opencv-python
+pip install requests
+
+cd pytorch-retinanet/lib
+bash build.sh
+cd ../
+
+# training on COCO
+python train.py --dataset coco --coco_path ../coco --depth 50
+
+# training on CSV
+python train.py --dataset csv --csv_train <path/to/train_annots.csv>  --csv_classes <path/to/train/class_list.csv>  --csv_val <path/to/val_annots.csv>
